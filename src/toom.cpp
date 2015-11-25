@@ -8,11 +8,7 @@
 #include <progress.hpp>
 // [[Rcpp::depends(Rcpp,RcppArmadillo,RcppProgress)]]
 // [[Rcpp::plugins(cpp11)]]
-// /\ Need: Sys.setenv("PKG_CXXFLAGS"="-std=c++11") /\
 
-//Deixar todas as matrizes das imagens como double pra ver se melhor a velocidade.
-
-// [[Rcpp::export]]
 NumericVector SingleCircularShift(NumericVector x, int shift) {
   int N = x.size();
   int K = (shift > 0 ? (shift % N) : (shift==0 ? 0 : ((shift % N)+N)));
@@ -31,6 +27,16 @@ NumericVector SingleCircularShift(NumericVector x, int shift) {
 }
 
 
+//' Circular Shift for Neighbors Matrix
+//'
+//' Shift a numeric vector by \code{shift}. End components 
+//' is feedback into the begining. This will build a 
+//' neighbors matrix
+//' 
+//' @param \code{x} Numeric vector
+//' @param \code{Neighbors} Integer vector with neighbors
+//' @return Matrix with Circular shifted versions of \code{x} defined by \code{Neighbors}
+//' @export
 // [[Rcpp::export]]
 NumericMatrix shiftCircular(NumericVector X, IntegerVector Neighbors) {
   int N = X.length();
@@ -41,6 +47,7 @@ NumericMatrix shiftCircular(NumericVector X, IntegerVector Neighbors) {
   } 
   return NeighborsMatrix; 
 }
+
 
 // [[Rcpp::export]]
 NumericMatrix MatrixSample(int n, int k, double p){
@@ -58,6 +65,13 @@ NumericMatrix MatrixSample(int n, int k, double p){
   return NumericMatrix(n, k, draws.begin());
 }
 
+
+//' Generate a random integer vector
+//' 
+//' @param \code{n} Integer
+//' @param \code{n} Double
+//' @return Random vector
+//' @export
 // [[Rcpp::export]]
 NumericVector VectorSample(int n, double p){
   try {

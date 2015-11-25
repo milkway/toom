@@ -6,18 +6,6 @@
 
 using namespace Rcpp;
 
-// SingleCircularShift
-NumericVector SingleCircularShift(NumericVector x, int shift);
-RcppExport SEXP toom_SingleCircularShift(SEXP xSEXP, SEXP shiftSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type shift(shiftSEXP);
-    __result = Rcpp::wrap(SingleCircularShift(x, shift));
-    return __result;
-END_RCPP
-}
 // shiftCircular
 NumericMatrix shiftCircular(NumericVector X, IntegerVector Neighbors);
 RcppExport SEXP toom_shiftCircular(SEXP XSEXP, SEXP NeighborsSEXP) {
