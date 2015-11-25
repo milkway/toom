@@ -49,6 +49,13 @@ NumericMatrix shiftCircular(NumericVector X, IntegerVector Neighbors) {
 }
 
 
+//' Generate a random integer matrix
+//' 
+//' @param \code{n} Integer
+//' @param \code{k} Integer
+//' @param \code{p} Double in (0,1)
+//' @return Random matrix
+//' @export
 // [[Rcpp::export]]
 NumericMatrix MatrixSample(int n, int k, double p){
   try {

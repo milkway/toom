@@ -15,6 +15,13 @@ shiftCircular <- function(X, Neighbors) {
     .Call('toom_shiftCircular', PACKAGE = 'toom', X, Neighbors)
 }
 
+#' Generate a random integer matrix
+#' 
+#' @param \code{n} Integer
+#' @param \code{k} Integer
+#' @param \code{p} Double in (0,1)
+#' @return Random matrix
+#' @export
 MatrixSample <- function(n, k, p) {
     .Call('toom_MatrixSample', PACKAGE = 'toom', n, k, p)
 }
