@@ -88,7 +88,13 @@ NumericVector VectorSample(int n, double p){
   return draws;
 }
 
-
+//' Do a Simulation Step (Only 3 neighbors...)
+//' 
+//' @param \code{X} Numeric vector representing a configuration
+//' @param \code{Alpha} Probability of change
+//' @param \code{Neighbors} Integer vectors of neighbors
+//' @return A List with new state and frequency of symbols
+//' @export
 // [[Rcpp::export]]
 List simIteration(NumericVector X, double Alpha, IntegerVector Neighbors){
   int Size = X.length();
@@ -118,12 +124,21 @@ List simIteration(NumericVector X, double Alpha, IntegerVector Neighbors){
 
 
 
-
+//' Do Automata Simulation (F fixed for Ramos & Leite)
+//' 
+//' @param \code{AlphaProb} Probability of change
+//' @param \code{Replications} Number of replications. Default 100
+//' @param \code{Size} Number of components in the configuration
+//' @param \code{MaxIterations} Default 1000
+//' @param \code{InitialProb} Probability for initial configuration
+//' @param \code{Neighbors} Integer vectors of neighbors. Defaulf c(-1,0,1)
+//' @return A data frame with Size, Replication, Iteration, AlphaProb and Frequency of Symbols
+//' @export
 // [[Rcpp::export]]
 DataFrame doSim(double AlphaProb,
-                int Replication,
+                int Replication = 100,
                 int Size = 1000, 
-                int MaxIterations = 10000, 
+                int MaxIterations = 1000, 
                 double InitialProb = 0.5,
                 IntegerVector Neighbors = IntegerVector::create(-1,0,1)){
   NumericVector X = VectorSample(Size, InitialProb);
@@ -185,6 +200,18 @@ DataFrame doSim(double AlphaProb,
 }
 
 
+//' Do Automata Simulation (F fixed for Ramos & Leite)
+//' 
+//' Save the space and temporal mean of configurations.
+//' 
+//' @param \code{AlphaProb} Probability of change
+//' @param \code{Replications} Number of replications. Default 100
+//' @param \code{Size} Number of components in the configuration
+//' @param \code{MaxIterations} Default 1000
+//' @param \code{InitialProb} Probability for initial configuration
+//' @param \code{Neighbors} Integer vectors of neighbors. Defaulf c(-1,0,1)
+//' @return A data frame with Size, Replication, Iteration, AlphaProb and Frequency of Symbols
+//' @export
 // [[Rcpp::export]]
 DataFrame doSimLast(double AlphaProb,
                     int Replication,

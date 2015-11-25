@@ -29,14 +29,43 @@ VectorSample <- function(n, p) {
     .Call('toom_VectorSample', PACKAGE = 'toom', n, p)
 }
 
+#' Do a Simulation Step (Only 3 neighbors...)
+#' 
+#' @param \code{X} Numeric vector representing a configuration
+#' @param \code{Alpha} Probability of change
+#' @param \code{Neighbors} Integer vectors of neighbors
+#' @return A List with new state and frequency of symbols
+#' @export
 simIteration <- function(X, Alpha, Neighbors) {
     .Call('toom_simIteration', PACKAGE = 'toom', X, Alpha, Neighbors)
 }
 
-doSim <- function(AlphaProb, Replication, Size = 1000L, MaxIterations = 10000L, InitialProb = 0.5, Neighbors = as.integer( c(-1,0,1))) {
+#' Do Automata Simulation (F fixed for Ramos & Leite)
+#' 
+#' @param \code{AlphaProb} Probability of change
+#' @param \code{Replications} Number of replications. Default 100
+#' @param \code{Size} Number of components in the configuration
+#' @param \code{MaxIterations} Default 1000
+#' @param \code{InitialProb} Probability for initial configuration
+#' @param \code{Neighbors} Integer vectors of neighbors. Defaulf c(-1,0,1)
+#' @return A data frame with Size, Replication, Iteration, AlphaProb and Frequency of Symbols
+#' @export
+doSim <- function(AlphaProb, Replication = 100L, Size = 1000L, MaxIterations = 1000L, InitialProb = 0.5, Neighbors = as.integer( c(-1,0,1))) {
     .Call('toom_doSim', PACKAGE = 'toom', AlphaProb, Replication, Size, MaxIterations, InitialProb, Neighbors)
 }
 
+#' Do Automata Simulation (F fixed for Ramos & Leite)
+#' 
+#' Save the space and temporal mean of configurations.
+#' 
+#' @param \code{AlphaProb} Probability of change
+#' @param \code{Replications} Number of replications. Default 100
+#' @param \code{Size} Number of components in the configuration
+#' @param \code{MaxIterations} Default 1000
+#' @param \code{InitialProb} Probability for initial configuration
+#' @param \code{Neighbors} Integer vectors of neighbors. Defaulf c(-1,0,1)
+#' @return A data frame with Size, Replication, Iteration, AlphaProb and Frequency of Symbols
+#' @export
 doSimLast <- function(AlphaProb, Replication, Size = 1000L, MaxIterations = 10000L, InitialProb = 0.5, Neighbors = as.integer( c(-1,0,1))) {
     .Call('toom_doSimLast', PACKAGE = 'toom', AlphaProb, Replication, Size, MaxIterations, InitialProb, Neighbors)
 }
