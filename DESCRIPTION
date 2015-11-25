@@ -8,4 +8,6 @@ Maintainer: Andre Leite <leite@de.ufpe.br>
 Description: Work to do.
 License: to decide. 
 Imports: Rcpp (>= 0.12.2)
-LinkingTo: Rcpp, RcppArmadillo
+LinkingTo: Rcpp, RcppArmadillo, RcppProgress
+RoxygenNote: 5.0.1
+LazyData: true
