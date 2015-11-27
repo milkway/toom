@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{doSimLast}
 \alias{doSimLast}
-\title{Do Automata Simulation (F fixed for Ramos & Leite)}
+\title{Do Automata Simulation (F fixed for Ramos & Leite 2015)}
 \usage{
 doSimLast(AlphaProb, Replication, Size = 1000L, MaxIterations = 10000L,
   InitialProb = 0.5, Neighbors = as.integer(c(-1, 0, 1)))

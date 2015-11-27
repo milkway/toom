@@ -61,7 +61,7 @@ doSim <- function(AlphaProb, Replication = 100L, Size = 1000L, MaxIterations = 1
     .Call('toom_doSim', PACKAGE = 'toom', AlphaProb, Replication, Size, MaxIterations, InitialProb, Neighbors)
 }
 
-#' Do Automata Simulation (F fixed for Ramos & Leite)
+#' Do Automata Simulation (F fixed for Ramos & Leite 2015)
 #' 
 #' Save the space and temporal mean of configurations.
 #' 

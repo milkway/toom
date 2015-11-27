@@ -207,7 +207,7 @@ DataFrame doSim(double AlphaProb,
 }
 
 
-//' Do Automata Simulation (F fixed for Ramos & Leite)
+//' Do Automata Simulation (F fixed for Ramos & Leite 2015)
 //' 
 //' Save the space and temporal mean of configurations.
 //' 
