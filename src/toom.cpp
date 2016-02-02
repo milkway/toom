@@ -326,7 +326,9 @@ DataFrame doSim2(double AlphaProb,
   for (int i = 0; i < MaxIterations; i++){
     if (i % 1000 == 0) 
       Rcpp::checkUserInterrupt(); // Test if user wants stop proccess
-    X = Xap*alphaVector + Xbp*betaVector + X*(1-alphaVector)*(1-betaVector);     
+    //X = Xap*alphaVector + Xbp*betaVector + X*(1-alphaVector)*(1-betaVector);     
+    X = pmax(X, Xap*alphaVector);
+    X = pmax(X, Xbp*alphaVector);
     NeighborsMatrix = shiftCircular(X, Neighbors);
     Xmi = NeighborsMatrix( _, 0);
     Xi  = NeighborsMatrix( _, 1);
@@ -337,7 +339,7 @@ DataFrame doSim2(double AlphaProb,
     f01[i] = mean((1 - Xmi) * (    X));
     f10[i] = mean((    Xmi) * (1 - X));
     f11[i] = mean((    Xmi) * (    X));
-    Xbp = Xpi;
+    Xbp = Xi;
     Xap = pmax((1-Xi)*pmax((1-Xmi)*Xpi,(1-Xpi)*Xmi), (Xmi * Xpi));
     alphaVector = VectorSample(Size, AlphaProb);
     betaVector = VectorSample(Size, BetaProb);
@@ -394,6 +396,7 @@ DataFrame doSimLast2(double AlphaProb,
                     double InitialProb = 0.5,
                     IntegerVector Neighbors = IntegerVector::create(-1,0,1)){
   NumericVector X = VectorSample(Size, InitialProb);
+  //Rcout << "X: " << X << std::endl;
   NumericMatrix NeighborsMatrix;
   NumericVector alphaVector;
   NumericVector betaVector;
@@ -434,11 +437,18 @@ DataFrame doSimLast2(double AlphaProb,
     f10c += f10;
     f11c += f11;
     // Next Grid Configuration
-    Xbp = Xpi;
+    Xbp = Xi;
+    //Rcout << "Xbp: " << Xbp << std::endl;
     Xap = pmax((1-Xi)*pmax((1-Xmi)*Xpi,(1-Xpi)*Xmi), (Xmi * Xpi));
+    //Rcout << "Xap: " << Xap << std::endl;
     alphaVector = VectorSample(Size, AlphaProb);
+    //Rcout << "alphaVector: " << alphaVector << std::endl;
     betaVector = VectorSample(Size, BetaProb);
-    X = Xap*alphaVector + Xbp*betaVector + X*(1-alphaVector)*(1-betaVector);     
+    //Rcout << "betaVector: " << betaVector << std::endl;
+    //X = clamp(0,Xap*alphaVector + Xbp*betaVector + X*(1-alphaVector)*(1-betaVector),1);     
+    X = pmax(X, Xap*alphaVector);
+    X = pmax(X, Xbp*alphaVector);
+    //Rcout << "X: " << X << std::endl;
   }
   return DataFrame::create(                _["Size"]  = Size,
                                            _["Alpha"]  = AlphaProb,
