@@ -327,8 +327,10 @@ DataFrame doSim2(double AlphaProb,
     if (i % 1000 == 0) 
       Rcpp::checkUserInterrupt(); // Test if user wants stop proccess
     //X = Xap*alphaVector + Xbp*betaVector + X*(1-alphaVector)*(1-betaVector);     
-    X = pmax(X, Xap*alphaVector);
-    X = pmax(X, Xbp*alphaVector);
+    //X = pmax(X, Xap*alphaVector);
+    //X = pmax(X, Xbp*alphaVector);
+    X = X*(1-alphaVector) +  Xap*alphaVector;
+    X = X*(1-betaVector) + Xbp*betaVector;
     NeighborsMatrix = shiftCircular(X, Neighbors);
     Xmi = NeighborsMatrix( _, 0);
     Xi  = NeighborsMatrix( _, 1);
@@ -446,8 +448,10 @@ DataFrame doSimLast2(double AlphaProb,
     betaVector = VectorSample(Size, BetaProb);
     //Rcout << "betaVector: " << betaVector << std::endl;
     //X = clamp(0,Xap*alphaVector + Xbp*betaVector + X*(1-alphaVector)*(1-betaVector),1);     
-    X = pmax(X, Xap*alphaVector);
-    X = pmax(X, Xbp*alphaVector);
+    //X = pmax(X, Xap*alphaVector);
+    X = X*(1-alphaVector) +  Xap*alphaVector;
+    //X = pmax(X, Xbp*alphaVector);
+    X = X*(1-betaVector) + Xbp*betaVector;
     //Rcout << "X: " << X << std::endl;
   }
   return DataFrame::create(                _["Size"]  = Size,
