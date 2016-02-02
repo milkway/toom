@@ -77,3 +77,35 @@ doSimLast <- function(AlphaProb, Replication, Size = 1000L, MaxIterations = 1000
     .Call('toom_doSimLast', PACKAGE = 'toom', AlphaProb, Replication, Size, MaxIterations, InitialProb, Neighbors)
 }
 
+#' Do Automata Simulation (F with Alpha and Beta fixed for Ramos & Leite)
+#' 
+#' @param \code{AlphaProb} Probability of change 1
+#' @param \code{BetaProb} Probability of change 2
+#' @param \code{Replications} Number of replications. Default 100
+#' @param \code{Size} Number of components in the configuration
+#' @param \code{MaxIterations} Default 1000
+#' @param \code{InitialProb} Probability for initial configuration
+#' @param \code{Neighbors} Integer vectors of neighbors. Defaulf c(-1,0,1)
+#' @return A data frame with Size, Replication, Iteration, AlphaProb and Frequency of Symbols
+#' @export
+doSim2 <- function(AlphaProb, BetaProb, Replication = 100L, Size = 1000L, MaxIterations = 1000L, InitialProb = 0.5, Neighbors = as.integer( c(-1,0,1))) {
+    .Call('toom_doSim2', PACKAGE = 'toom', AlphaProb, BetaProb, Replication, Size, MaxIterations, InitialProb, Neighbors)
+}
+
+#' Do Automata Simulation (F with Alpha and Beta fixed for Ramos & Leite 2015)
+#' 
+#' Save the space and temporal mean of configurations.
+#' 
+#' @param \code{AlphaProb} Probability of change 1
+#' @param \code{BetaProb} Probability of change 2
+#' @param \code{Replications} Number of replications. Default 100
+#' @param \code{Size} Number of components in the configuration
+#' @param \code{MaxIterations} Default 1000
+#' @param \code{InitialProb} Probability for initial configuration
+#' @param \code{Neighbors} Integer vectors of neighbors. Defaulf c(-1,0,1)
+#' @return A data frame with Size, Replication, Iteration, AlphaProb and Frequency of Symbols
+#' @export
+doSimLast2 <- function(AlphaProb, BetaProb, Replication, Size = 1000L, MaxIterations = 10000L, InitialProb = 0.5, Neighbors = as.integer( c(-1,0,1))) {
+    .Call('toom_doSimLast2', PACKAGE = 'toom', AlphaProb, BetaProb, Replication, Size, MaxIterations, InitialProb, Neighbors)
+}
+

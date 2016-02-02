@@ -289,3 +289,174 @@ DataFrame doSimLast(double AlphaProb,
 }
 
 
+//' Do Automata Simulation (F with Alpha and Beta fixed for Ramos & Leite)
+//' 
+//' @param \code{AlphaProb} Probability of change 1
+//' @param \code{BetaProb} Probability of change 2
+//' @param \code{Replications} Number of replications. Default 100
+//' @param \code{Size} Number of components in the configuration
+//' @param \code{MaxIterations} Default 1000
+//' @param \code{InitialProb} Probability for initial configuration
+//' @param \code{Neighbors} Integer vectors of neighbors. Defaulf c(-1,0,1)
+//' @return A data frame with Size, Replication, Iteration, AlphaProb and Frequency of Symbols
+//' @export
+// [[Rcpp::export]]
+DataFrame doSim2(double AlphaProb,
+                 double BetaProb,
+                int Replication = 100,
+                int Size = 1000, 
+                int MaxIterations = 1000, 
+                double InitialProb = 0.5,
+                IntegerVector Neighbors = IntegerVector::create(-1,0,1)){
+  NumericVector X = VectorSample(Size, InitialProb);
+  NumericMatrix NeighborsMatrix = shiftCircular(X, Neighbors);
+  NumericVector alphaVector = VectorSample(Size, AlphaProb);
+  NumericVector betaVector = VectorSample(Size, BetaProb);
+  NumericVector Xmi = NeighborsMatrix( _, 0);
+  NumericVector  Xi = NeighborsMatrix( _, 1);
+  NumericVector Xpi = NeighborsMatrix( _, 2);
+  NumericVector  Xbp = Xpi;
+  NumericVector  Xap = pmax((1-Xi)*pmax((1-Xmi)*Xpi,(1-Xpi)*Xmi), (Xmi * Xpi));
+  NumericVector  f0(MaxIterations); 
+  NumericVector  f1(MaxIterations); 
+  NumericVector  f00(MaxIterations);
+  NumericVector  f01(MaxIterations);
+  NumericVector  f10(MaxIterations);
+  NumericVector  f11(MaxIterations); 
+  for (int i = 0; i < MaxIterations; i++){
+    if (i % 1000 == 0) 
+      Rcpp::checkUserInterrupt(); // Test if user wants stop proccess
+    X = Xap*alphaVector + Xbp*betaVector + X*(1-alphaVector)*(1-betaVector);     
+    NeighborsMatrix = shiftCircular(X, Neighbors);
+    Xmi = NeighborsMatrix( _, 0);
+    Xi  = NeighborsMatrix( _, 1);
+    Xpi = NeighborsMatrix( _, 2);
+    f1[i]  = mean(X);
+    f0[i]  = mean(1-X);
+    f00[i] = mean((1 - Xmi) * (1 - X));
+    f01[i] = mean((1 - Xmi) * (    X));
+    f10[i] = mean((    Xmi) * (1 - X));
+    f11[i] = mean((    Xmi) * (    X));
+    Xbp = Xpi;
+    Xap = pmax((1-Xi)*pmax((1-Xmi)*Xpi,(1-Xpi)*Xmi), (Xmi * Xpi));
+    alphaVector = VectorSample(Size, AlphaProb);
+    betaVector = VectorSample(Size, BetaProb);
+  }
+  IntegerVector Iterator = seq(1,MaxIterations); 
+  NumericVector numIterator = as<NumericVector>(Iterator);
+  // Cumulative Means
+  NumericVector  f0cum = cumsum(f0);
+  NumericVector  f1cum = cumsum(f1);
+  NumericVector f00cum = cumsum(f00);
+  NumericVector f01cum = cumsum(f01);
+  NumericVector f10cum = cumsum(f10);
+  NumericVector f11cum = cumsum(f11);
+  return DataFrame::create(        _["Size"]  = Size,
+                                   _["Alpha"]  = AlphaProb,
+                                   _["Beta"]  = BetaProb,
+                                   _["Replication"]  = Replication,
+                                   _["Iteration"] = numIterator,
+                                   _["SpaceMean_F0"] = f0,
+                                   _["SpaceMean_F1"] = f1,
+                                   _["SpaceMean_F00"] = f00,
+                                   _["SpaceMean_F01"] = f01,
+                                   _["SpaceMean_F10"] = f10,
+                                   _["SpaceMean_F11"] = f11,
+                                   _["TimeMean_F0"]  = f0cum/numIterator, 
+                                   _["TimeMean_F1"]  = f1cum/numIterator,
+                                   _["TimeMean_F00"]  = f00cum/numIterator,
+                                   _["TimeMean_F01"]  = f01cum/numIterator,
+                                   _["TimeMean_F10"]  = f10cum/numIterator,
+                                   _["TimeMean_F11"]  = f11cum/numIterator
+  );
+}
+
+
+//' Do Automata Simulation (F with Alpha and Beta fixed for Ramos & Leite 2015)
+//' 
+//' Save the space and temporal mean of configurations.
+//' 
+//' @param \code{AlphaProb} Probability of change 1
+//' @param \code{BetaProb} Probability of change 2
+//' @param \code{Replications} Number of replications. Default 100
+//' @param \code{Size} Number of components in the configuration
+//' @param \code{MaxIterations} Default 1000
+//' @param \code{InitialProb} Probability for initial configuration
+//' @param \code{Neighbors} Integer vectors of neighbors. Defaulf c(-1,0,1)
+//' @return A data frame with Size, Replication, Iteration, AlphaProb and Frequency of Symbols
+//' @export
+// [[Rcpp::export]]
+DataFrame doSimLast2(double AlphaProb,
+                     double BetaProb,
+                    int Replication,
+                    int Size = 1000, 
+                    int MaxIterations = 10000, 
+                    double InitialProb = 0.5,
+                    IntegerVector Neighbors = IntegerVector::create(-1,0,1)){
+  NumericVector X = VectorSample(Size, InitialProb);
+  NumericMatrix NeighborsMatrix;
+  NumericVector alphaVector;
+  NumericVector betaVector;
+  NumericVector Xmi;
+  NumericVector  Xi;
+  NumericVector Xpi;
+  NumericVector  Xap;
+  NumericVector  Xbp;
+  double  f0; 
+  double  f0c = 0;   
+  double  f1; 
+  double  f1c = 0;   
+  double  f00; 
+  double  f00c = 0;   
+  double  f01; 
+  double  f01c = 0;
+  double  f10; 
+  double  f10c = 0;   
+  double  f11; 
+  double  f11c = 0;
+  for (int i = 0; i < MaxIterations; i++){
+    if (i % 1000 == 0) 
+      Rcpp::checkUserInterrupt(); // Test if user wants stop proccess
+    NeighborsMatrix = shiftCircular(X, Neighbors);
+    Xmi = NeighborsMatrix( _, 0);
+    Xi  = NeighborsMatrix( _, 1);
+    Xpi = NeighborsMatrix( _, 2);
+    f1  = mean(X);
+    f0  = mean(1-X);
+    f0c += f0;
+    f1c += f1;
+    f00 = mean((1 - Xmi) * (1 - X));
+    f01 = mean((1 - Xmi) * (    X));
+    f10 = mean((    Xmi) * (1 - X));
+    f11 = mean((    Xmi) * (    X));
+    f00c += f00;
+    f01c += f01;
+    f10c += f10;
+    f11c += f11;
+    // Next Grid Configuration
+    Xbp = Xpi;
+    Xap = pmax((1-Xi)*pmax((1-Xmi)*Xpi,(1-Xpi)*Xmi), (Xmi * Xpi));
+    alphaVector = VectorSample(Size, AlphaProb);
+    betaVector = VectorSample(Size, BetaProb);
+    X = Xap*alphaVector + Xbp*betaVector + X*(1-alphaVector)*(1-betaVector);     
+  }
+  return DataFrame::create(                _["Size"]  = Size,
+                                           _["Alpha"]  = AlphaProb,
+                                           _["Beta"]  =  BetaProb,
+                                           _["Replication"]  = Replication,
+                                           _["Iteration"] = MaxIterations,
+                                           _["SpaceMean_F0"] = f0,
+                                           _["SpaceMean_F1"] = f1,
+                                           _["SpaceMean_F00"] = f00,
+                                           _["SpaceMean_F01"] = f01,
+                                           _["SpaceMean_F10"] = f10,
+                                           _["SpaceMean_F11"] = f11,
+                                           _["TimeMean_F0"]  = f0c/MaxIterations, 
+                                           _["TimeMean_F1"]  = f1c/MaxIterations,
+                                           _["TimeMean_F00"]  = f00c/MaxIterations,
+                                           _["TimeMean_F01"]  = f01c/MaxIterations,
+                                           _["TimeMean_F10"]  = f10c/MaxIterations,
+                                           _["TimeMean_F11"]  = f11c/MaxIterations
+  );
+}
+

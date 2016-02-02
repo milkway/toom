@@ -88,3 +88,37 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// doSim2
+DataFrame doSim2(double AlphaProb, double BetaProb, int Replication, int Size, int MaxIterations, double InitialProb, IntegerVector Neighbors);
+RcppExport SEXP toom_doSim2(SEXP AlphaProbSEXP, SEXP BetaProbSEXP, SEXP ReplicationSEXP, SEXP SizeSEXP, SEXP MaxIterationsSEXP, SEXP InitialProbSEXP, SEXP NeighborsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< double >::type AlphaProb(AlphaProbSEXP);
+    Rcpp::traits::input_parameter< double >::type BetaProb(BetaProbSEXP);
+    Rcpp::traits::input_parameter< int >::type Replication(ReplicationSEXP);
+    Rcpp::traits::input_parameter< int >::type Size(SizeSEXP);
+    Rcpp::traits::input_parameter< int >::type MaxIterations(MaxIterationsSEXP);
+    Rcpp::traits::input_parameter< double >::type InitialProb(InitialProbSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type Neighbors(NeighborsSEXP);
+    __result = Rcpp::wrap(doSim2(AlphaProb, BetaProb, Replication, Size, MaxIterations, InitialProb, Neighbors));
+    return __result;
+END_RCPP
+}
+// doSimLast2
+DataFrame doSimLast2(double AlphaProb, double BetaProb, int Replication, int Size, int MaxIterations, double InitialProb, IntegerVector Neighbors);
+RcppExport SEXP toom_doSimLast2(SEXP AlphaProbSEXP, SEXP BetaProbSEXP, SEXP ReplicationSEXP, SEXP SizeSEXP, SEXP MaxIterationsSEXP, SEXP InitialProbSEXP, SEXP NeighborsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< double >::type AlphaProb(AlphaProbSEXP);
+    Rcpp::traits::input_parameter< double >::type BetaProb(BetaProbSEXP);
+    Rcpp::traits::input_parameter< int >::type Replication(ReplicationSEXP);
+    Rcpp::traits::input_parameter< int >::type Size(SizeSEXP);
+    Rcpp::traits::input_parameter< int >::type MaxIterations(MaxIterationsSEXP);
+    Rcpp::traits::input_parameter< double >::type InitialProb(InitialProbSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type Neighbors(NeighborsSEXP);
+    __result = Rcpp::wrap(doSimLast2(AlphaProb, BetaProb, Replication, Size, MaxIterations, InitialProb, Neighbors));
+    return __result;
+END_RCPP
+}
