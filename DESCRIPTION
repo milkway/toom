@@ -7,7 +7,7 @@ Author: Andre Leite, Luis H. de Santana, Alex Ramos
 Maintainer: Andre Leite <leite@de.ufpe.br>
 Description: Work to do.
 License: to decide. 
-Depends: ggplot2 (>= 1.0.0), tidyr (>= 0.3.0), dplyr (>= 0.4.0), grid (>= 3.2.0), gridExtra (>= 2.0.0), ggthemes (>= 3.0.1), scales (>= 0.3.0), foreach (>= 1.4.3), doParallel (>= 1.0.10)
+Depends: ggplot2 (>= 1.0.0), tidyr (>= 0.3.0), dplyr (>= 0.4.0), grid (>= 3.2.0), gridExtra (>= 2.0.0), ggthemes (>= 3.0.1), scales (>= 0.3.0)
 Imports: Rcpp (>= 0.12.2)
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 RoxygenNote: 5.0.1

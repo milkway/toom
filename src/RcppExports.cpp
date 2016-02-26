@@ -7,118 +7,31 @@
 using namespace Rcpp;
 
 // shiftCircular
-NumericMatrix shiftCircular(NumericVector X, IntegerVector Neighbors);
+arma::imat shiftCircular(arma::ivec X, arma::ivec Neighbors);
 RcppExport SEXP toom_shiftCircular(SEXP XSEXP, SEXP NeighborsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< NumericVector >::type X(XSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type Neighbors(NeighborsSEXP);
+    Rcpp::traits::input_parameter< arma::ivec >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::ivec >::type Neighbors(NeighborsSEXP);
     __result = Rcpp::wrap(shiftCircular(X, Neighbors));
     return __result;
 END_RCPP
 }
-// MatrixSample
-NumericMatrix MatrixSample(int n, int k, double p);
-RcppExport SEXP toom_MatrixSample(SEXP nSEXP, SEXP kSEXP, SEXP pSEXP) {
+// grid_simulation
+Rcpp::DataFrame grid_simulation(int threads, double step, int initial_block_lenght, int max_iterations, int replications, int line_size, IntegerVector Neighbors);
+RcppExport SEXP toom_grid_simulation(SEXP threadsSEXP, SEXP stepSEXP, SEXP initial_block_lenghtSEXP, SEXP max_iterationsSEXP, SEXP replicationsSEXP, SEXP line_sizeSEXP, SEXP NeighborsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    Rcpp::traits::input_parameter< double >::type p(pSEXP);
-    __result = Rcpp::wrap(MatrixSample(n, k, p));
-    return __result;
-END_RCPP
-}
-// VectorSample
-NumericVector VectorSample(int n, double p);
-RcppExport SEXP toom_VectorSample(SEXP nSEXP, SEXP pSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type p(pSEXP);
-    __result = Rcpp::wrap(VectorSample(n, p));
-    return __result;
-END_RCPP
-}
-// simIteration
-List simIteration(NumericVector X, double Alpha, IntegerVector Neighbors);
-RcppExport SEXP toom_simIteration(SEXP XSEXP, SEXP AlphaSEXP, SEXP NeighborsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< NumericVector >::type X(XSEXP);
-    Rcpp::traits::input_parameter< double >::type Alpha(AlphaSEXP);
+    Rcpp::traits::input_parameter< int >::type threads(threadsSEXP);
+    Rcpp::traits::input_parameter< double >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< int >::type initial_block_lenght(initial_block_lenghtSEXP);
+    Rcpp::traits::input_parameter< int >::type max_iterations(max_iterationsSEXP);
+    Rcpp::traits::input_parameter< int >::type replications(replicationsSEXP);
+    Rcpp::traits::input_parameter< int >::type line_size(line_sizeSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type Neighbors(NeighborsSEXP);
-    __result = Rcpp::wrap(simIteration(X, Alpha, Neighbors));
-    return __result;
-END_RCPP
-}
-// doSim
-DataFrame doSim(double AlphaProb, int Replication, int Size, int MaxIterations, double InitialProb, IntegerVector Neighbors);
-RcppExport SEXP toom_doSim(SEXP AlphaProbSEXP, SEXP ReplicationSEXP, SEXP SizeSEXP, SEXP MaxIterationsSEXP, SEXP InitialProbSEXP, SEXP NeighborsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< double >::type AlphaProb(AlphaProbSEXP);
-    Rcpp::traits::input_parameter< int >::type Replication(ReplicationSEXP);
-    Rcpp::traits::input_parameter< int >::type Size(SizeSEXP);
-    Rcpp::traits::input_parameter< int >::type MaxIterations(MaxIterationsSEXP);
-    Rcpp::traits::input_parameter< double >::type InitialProb(InitialProbSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type Neighbors(NeighborsSEXP);
-    __result = Rcpp::wrap(doSim(AlphaProb, Replication, Size, MaxIterations, InitialProb, Neighbors));
-    return __result;
-END_RCPP
-}
-// doSimLast
-DataFrame doSimLast(double AlphaProb, int Replication, int Size, int MaxIterations, double InitialProb, IntegerVector Neighbors);
-RcppExport SEXP toom_doSimLast(SEXP AlphaProbSEXP, SEXP ReplicationSEXP, SEXP SizeSEXP, SEXP MaxIterationsSEXP, SEXP InitialProbSEXP, SEXP NeighborsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< double >::type AlphaProb(AlphaProbSEXP);
-    Rcpp::traits::input_parameter< int >::type Replication(ReplicationSEXP);
-    Rcpp::traits::input_parameter< int >::type Size(SizeSEXP);
-    Rcpp::traits::input_parameter< int >::type MaxIterations(MaxIterationsSEXP);
-    Rcpp::traits::input_parameter< double >::type InitialProb(InitialProbSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type Neighbors(NeighborsSEXP);
-    __result = Rcpp::wrap(doSimLast(AlphaProb, Replication, Size, MaxIterations, InitialProb, Neighbors));
-    return __result;
-END_RCPP
-}
-// doSim2
-DataFrame doSim2(double AlphaProb, double BetaProb, int Replication, int Size, int MaxIterations, double InitialProb, IntegerVector Neighbors);
-RcppExport SEXP toom_doSim2(SEXP AlphaProbSEXP, SEXP BetaProbSEXP, SEXP ReplicationSEXP, SEXP SizeSEXP, SEXP MaxIterationsSEXP, SEXP InitialProbSEXP, SEXP NeighborsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< double >::type AlphaProb(AlphaProbSEXP);
-    Rcpp::traits::input_parameter< double >::type BetaProb(BetaProbSEXP);
-    Rcpp::traits::input_parameter< int >::type Replication(ReplicationSEXP);
-    Rcpp::traits::input_parameter< int >::type Size(SizeSEXP);
-    Rcpp::traits::input_parameter< int >::type MaxIterations(MaxIterationsSEXP);
-    Rcpp::traits::input_parameter< double >::type InitialProb(InitialProbSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type Neighbors(NeighborsSEXP);
-    __result = Rcpp::wrap(doSim2(AlphaProb, BetaProb, Replication, Size, MaxIterations, InitialProb, Neighbors));
-    return __result;
-END_RCPP
-}
-// doSimLast2
-DataFrame doSimLast2(double AlphaProb, double BetaProb, int Replication, int Size, int MaxIterations, double InitialProb, IntegerVector Neighbors);
-RcppExport SEXP toom_doSimLast2(SEXP AlphaProbSEXP, SEXP BetaProbSEXP, SEXP ReplicationSEXP, SEXP SizeSEXP, SEXP MaxIterationsSEXP, SEXP InitialProbSEXP, SEXP NeighborsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< double >::type AlphaProb(AlphaProbSEXP);
-    Rcpp::traits::input_parameter< double >::type BetaProb(BetaProbSEXP);
-    Rcpp::traits::input_parameter< int >::type Replication(ReplicationSEXP);
-    Rcpp::traits::input_parameter< int >::type Size(SizeSEXP);
-    Rcpp::traits::input_parameter< int >::type MaxIterations(MaxIterationsSEXP);
-    Rcpp::traits::input_parameter< double >::type InitialProb(InitialProbSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type Neighbors(NeighborsSEXP);
-    __result = Rcpp::wrap(doSimLast2(AlphaProb, BetaProb, Replication, Size, MaxIterations, InitialProb, Neighbors));
+    __result = Rcpp::wrap(grid_simulation(threads, step, initial_block_lenght, max_iterations, replications, line_size, Neighbors));
     return __result;
 END_RCPP
 }

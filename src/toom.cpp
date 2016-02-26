@@ -2,30 +2,59 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif 
+// [[Rcpp::depends(Rcpp,RcppArmadillo,RcppProgress)]]
+// [[Rcpp::plugins(cpp11,openmp)]]
 #include <thread>
 #include <string> 
 #include <RcppArmadillo.h>
 #include <progress.hpp>
-// [[Rcpp::depends(Rcpp,RcppArmadillo,RcppProgress)]]
-// [[Rcpp::plugins(cpp11)]]
 
-NumericVector SingleCircularShift(NumericVector x, int shift) {
-  int N = x.size();
+class RNG
+{
+public:
+  typedef std::mt19937 Engine;
+  typedef std::uniform_real_distribution<double> Distribution;
+  
+  RNG() : engines(), distribution(0.0, 1.0)
+  {
+    int threads = std::max(1, omp_get_max_threads());
+    for(int seed = 0; seed < threads; ++seed)
+    {
+      engines.push_back(Engine(seed));
+    }
+  }
+  
+  double operator()()
+  {
+    int id = omp_get_thread_num();
+    return distribution(engines[id]);
+  }
+  
+  std::vector<Engine> engines;
+  Distribution distribution;
+};
+
+
+
+
+
+
+arma::ivec SingleCircularShift(arma::ivec x, int shift) {
+  int N = x.n_elem;
   int K = (shift > 0 ? (shift % N) : (shift==0 ? 0 : ((shift % N)+N)));
   if (K == 0) {
     return x;
   } else  { 
-    NumericVector result(N);
+    arma::ivec result(N);
     for (int i = 0; i < K;i++){
-      result[i] = x[i+N-K];
+      result(i) = x(i+N-K);
     }
     for (int i = K; i < N;i++){
-      result[i] = x[i-K];
+      result(i) = x(i-K);
     }
     return result;
   }
 }
-
 
 //' Circular Shift for Neighbors Matrix
 //'
@@ -38,17 +67,17 @@ NumericVector SingleCircularShift(NumericVector x, int shift) {
 //' @return Matrix with Circular shifted versions of \code{x} defined by \code{Neighbors}
 //' @export
 // [[Rcpp::export]]
-NumericMatrix shiftCircular(NumericVector X, IntegerVector Neighbors) {
-  int N = X.length();
-  int M = Neighbors.length();
-  NumericMatrix NeighborsMatrix(N,M);
+arma::imat shiftCircular(arma::ivec X, arma::ivec Neighbors) {
+  int N = X.n_elem;
+  int M = Neighbors.n_elem;
+  arma::imat NeighborsMatrix(N,M);
   for(int i = 0; i < M; i++) {
-      NeighborsMatrix(_,i) = SingleCircularShift(X, -Neighbors[i]);
+    NeighborsMatrix.col(i) = SingleCircularShift(X, -Neighbors(i));
   } 
   return NeighborsMatrix; 
 }
 
-
+/*
 //' Generate a random integer matrix
 //' 
 //' @param \code{n} Integer
@@ -71,8 +100,9 @@ NumericMatrix MatrixSample(int n, int k, double p){
   NumericVector draws = floor(Rcpp::runif(n*k)+p);
   return NumericMatrix(n, k, draws.begin());
 }
+*/
 
-
+/*
 //' Generate a random integer vector
 //' 
 //' @param \code{n} Integer
@@ -94,7 +124,9 @@ NumericVector VectorSample(int n, double p){
   NumericVector draws = floor(Rcpp::runif(n)+p);
   return draws;
 }
+*/
 
+/*
 //' Do a Simulation Step (Only 3 neighbors...)
 //' 
 //' @param \code{X} Numeric vector representing a configuration
@@ -127,10 +159,10 @@ List simIteration(NumericVector X, double Alpha, IntegerVector Neighbors){
                       Named( "f10" ) = f10,
                       Named( "f11" ) = f11); 
 }
+*/
 
 
-
-
+/*
 //' Do Automata Simulation (F fixed for Ramos & Leite)
 //' 
 //' @param \code{AlphaProb} Probability of change
@@ -205,8 +237,9 @@ DataFrame doSim(double AlphaProb,
                            _["TimeMean_F11"]  = f11cum/numIterator
   );
 }
+*/
 
-
+/*
 //' Do Automata Simulation (F fixed for Ramos & Leite 2015)
 //' 
 //' Save the space and temporal mean of configurations.
@@ -287,8 +320,9 @@ DataFrame doSimLast(double AlphaProb,
                                    _["TimeMean_F11"]  = f11c/MaxIterations
   );
 }
+*/
 
-
+/*
 //' Do Automata Simulation (F with Alpha and Beta fixed for Ramos & Leite)
 //' 
 //' @param \code{AlphaProb} Probability of change 1
@@ -374,8 +408,9 @@ DataFrame doSim2(double AlphaProb,
                                    _["TimeMean_F11"]  = f11cum/numIterator
   );
 }
+*/
 
-
+/*
 //' Do Automata Simulation (F with Alpha and Beta fixed for Ramos & Leite 2015)
 //' 
 //' Save the space and temporal mean of configurations.
@@ -473,4 +508,304 @@ DataFrame doSimLast2(double AlphaProb,
                                            _["TimeMean_F11"]  = f11c/MaxIterations
   );
 }
+*/
+
+/*
+//' Do Automata Simulation (F with Alpha and Beta fixed for Ramos & Leite 2015)
+//' 
+//' Save the space and temporal mean of configurations.
+//' 
+//' @param \code{AlphaProb} Probability of change 1
+//' @param \code{BetaProb} Probability of change 2
+//' @param \code{Size} Number of components in the configuration
+//' @param \code{MaxIterations} Default 1000
+//' @param \code{InitialBlockSize} Inital block size. Default 1.
+//' @param \code{Neighbors} Integer vectors of neighbors. Defaulf c(-1,0,1)
+//' @return A value. If all zeros, return 0. If all ones, return 1. If MaxIterations reached, return -1.
+//' @export
+// [[Rcpp::export]]
+int doSimGrid(double AlphaProb,
+                     double BetaProb,
+                     int Size = 1000, 
+                     int MaxIterations = 100000, 
+                     double InitialBlockSize = 1,
+                     IntegerVector Neighbors = IntegerVector::create(-1,0,1)){
+  NumericVector X(Size);
+  std::fill(X.begin(), X.end(), 0);
+  std::fill_n(X.begin(), InitialBlockSize, 1);
+  //Rcout << "Initial X: " << X << std::endl;
+  NumericMatrix NeighborsMatrix;
+  NumericVector alphaVector;
+  NumericVector betaVector;
+  NumericVector Xmi;
+  NumericVector  Xi;
+  NumericVector Xpi;
+  NumericVector  Xap;
+  NumericVector  Xbp;
+  double  f0; 
+  double  f1;
+  int val = -1;
+  for (int i = 0; i < MaxIterations; i++){
+    //if (i % 1000 == 0) 
+    //  Rcpp::checkUserInterrupt(); // Test if user wants stop proccess
+    NeighborsMatrix = shiftCircular(X, Neighbors);
+    Xmi = NeighborsMatrix( _, 0);
+    Xi  = NeighborsMatrix( _, 1);
+    Xpi = NeighborsMatrix( _, 2);
+    //Rcout  << "NeighborsMatrix:\n " << NeighborsMatrix << std::endl;
+    // Next Grid Configuration
+    Xbp = Xi;
+    //Rcout << "Xbp: " << Xbp << std::endl;
+    Xap = pmax((1-Xi)*pmax((1-Xmi)*Xpi,(1-Xpi)*Xmi), (Xmi * Xpi));
+    //Rcout << "Xap: " << Xap << std::endl;
+    alphaVector = VectorSample(Size, AlphaProb);
+    betaVector = VectorSample(Size, BetaProb);
+    X = pmax(Xap*alphaVector, Xbp*betaVector);
+    //Rcout << "X: " << X << std::endl;
+    f1  = mean(X);
+    //Rcout << "f1: " << f1 << std::endl;
+    f0  = mean(1-X);
+    //Rcout << "f0: " << f0 << std::endl;
+    //Rcout << "i: " << i << std::endl;
+    if (1 == f1) {
+      val = 1;
+      break;
+    }
+    if (1 == f0) {
+      val = 0;
+      break;
+    }
+  }
+  return(val);
+}
+*/
+
+/*
+// [[Rcpp::export]]
+DataFrame alpha_beta_grid(int threads=1,
+                       int Step = 100,
+                       int InitialBlockSize = 1, 
+                       int MaxIterations = 100000, 
+                       int Size = 1000,
+                       IntegerVector Neighbors = IntegerVector::create(-1,0,1)){
+#ifdef _OPENMP
+  if ( threads > 0 )
+    omp_set_num_threads(threads);
+    REprintf("Number of threads=%i\n", omp_get_max_threads());
+#endif
+  int size_grid = pow(Step,2);
+ int long_dim = size_grid; //Replications*
+  NumericMatrix result_matrix(long_dim, 3);
+  result_matrix.fill(-2);
+  //Progress p(size_grid, true);
+    //Rcout << "\nReplication: " << r << std::endl;
+    for (int i = 0; i < Step; i++) {
+      for (int j = 0; j < Step; j++) {
+        //p.increment();
+        //Rcout << "j loop: " << j << std::endl;
+        int I = i*Step + j;
+        result_matrix(I, 0) = (double) i/Step;
+        result_matrix(I, 1) = (double) j/Step;
+        //result_matrix(i*Step + j, 2) = r;
+        result_matrix(I, 2) =  doSimGrid((double) i/Step,(double) j/Step, Size, MaxIterations, InitialBlockSize, Neighbors);
+      }
+    }
+    
+  return DataFrame::create(      _["Alpha"]  = result_matrix(_,0),
+                                  _["Beta"]  = result_matrix(_,1),
+                                _["Status"]  = result_matrix(_,2));
+}
+ */
+//alpha_beta_grid(threads = 1, Step = 20, InitialBlockSize = 1, MaxIterations = 10, Size = 10)
+//alpha_beta_grid(threads = 1, Step = 4, Replications = 1, InitialBlockSize = 1, MaxIterations = 10, Size = 100)
+//alpha_beta_grid(threads = 6, Step = 100, Replications = 200, InitialBlockSize = 1, MaxIterations = 1000000, Size = 1000)
+
+
+/*
+// [[Rcpp::export]]
+arma::mat grid_simulation(int threads=1,
+                          double step = 0.01,
+                          int initial_block_lenght = 1, 
+                          int max_iterations = 100000, 
+                          int line_size = 1000,
+                          IntegerVector Neighbors = IntegerVector::create(-1,0,1)){
+#ifdef _OPENMP
+  if ( threads > 0 )
+    omp_set_num_threads(threads);
+  //srand(int(time(NULL)) ^ omp_get_thread_num());
+  RNG rand;
+  REprintf("Number of threads=%i\nn", omp_get_max_threads());
+#endif
+  int for_lenght = (int) 1/step;
+  Rcout << "Lenght" << for_lenght << std::endl;
+  int result_lenght = (int) pow(1/step,2);
+  Rcout << "Result_lenght: " << result_lenght;
+  arma::mat result_matrix(result_lenght, 3);
+  result_matrix.fill(-2);
+#pragma omp parallel for default(shared)
+  for (int j=0; j<for_lenght; j++)
+  {
+#pragma omp simd
+    for (int i=0; i<for_lenght; i++){
+      arma::vec Automata =  {0,i*step,j*step,j*step,i*step,i*step,j*step,1};
+      arma::ivec X(line_size);
+      X.fill(0);
+      std::fill_n(X.begin(), initial_block_lenght, 1);
+      result_matrix(i*for_lenght+j, 0) = i*step;
+      result_matrix(i*for_lenght+j, 1) = j*step;
+      int count = 0;
+      int val = -1;
+      while ((val != 0)&&(val != 1)&&(count <= max_iterations)) {
+        arma::imat NeighborsMatrix = shiftCircular(X, Neighbors);
+        count++;
+        for(int k = 0; k < line_size; k++){
+          int Indice = NeighborsMatrix(k,0)*4 + NeighborsMatrix(k,1)*2 + NeighborsMatrix(k,2);
+          //double r = (double) rand()/RAND_MAX;
+          double r = rand();
+          X(k) = (r <= Automata(Indice)) ? 1 : 0;
+        }
+        if (sum(X) == 0) val = 0;
+        if (sum(X) == line_size) val = 1;
+      }
+      result_matrix(i*for_lenght+j, 2) = val;
+    }
+  }
+  return result_matrix;
+}
+*/
+
+/*
+// [[Rcpp::export]]
+arma::mat grid_simulation2(int threads=1,
+                          double step = 0.01,
+                          int initial_block_lenght = 1, 
+                          int max_iterations = 100000, 
+                          int line_size = 1000,
+                          IntegerVector Neighbors = IntegerVector::create(-1,0,1)){
+#ifdef _OPENMP
+  if ( threads > 0 )
+    omp_set_num_threads(threads);
+  //srand(int(time(NULL)) ^ omp_get_thread_num());
+  RNG rand;
+  REprintf("Number of threads=%i\nn", omp_get_max_threads());
+#endif
+  int for_lenght = (int) 1/step;
+  Rcout << "Lenght" << for_lenght << std::endl;
+  int result_lenght = (int) pow(1/step,2);
+  Rcout << "Result_lenght: " << result_lenght;
+  arma::mat result_matrix(result_lenght, 3);
+  result_matrix.fill(-2);
+#pragma omp parallel for default(shared) schedule(dynamic)
+  for (int j=0; j<for_lenght; j++){
+    for (int i=0; i<for_lenght; i++){
+      arma::vec Automata =  {0,i*step,j*step,j*step,i*step,i*step,j*step,1};
+      arma::ivec X(line_size);
+      X.fill(0);
+      std::fill_n(X.begin(), initial_block_lenght, 1);
+      result_matrix(i*for_lenght+j, 0) = i*step;
+      result_matrix(i*for_lenght+j, 1) = j*step;
+      int count = 0;
+      int val = -1;
+      while ((val != 0)&&(val != 1)&&(count <= max_iterations)) {
+        arma::imat NeighborsMatrix = shiftCircular(X, Neighbors);
+        count++;
+        for(int k = 0; k < line_size; k++){
+          int Indice = NeighborsMatrix(k,0)*4 + NeighborsMatrix(k,1)*2 + NeighborsMatrix(k,2);
+          //double r = (double) rand()/RAND_MAX;
+          double r = rand();
+          X(k) = (r <= Automata(Indice)) ? 1 : 0;
+        }
+        if (sum(X) == 0) val = 0;
+        if (sum(X) == line_size) val = 1;
+      }
+      result_matrix(i*for_lenght+j, 2) = val;
+    }
+  }
+  return result_matrix;
+}
+*/
+
+
+ //' Do Automata Simulation (F with Alpha and Beta fixed for Ramos & Leite 2016)
+ //' 
+ //' Save the space and temporal mean of configurations.
+ //' 
+ //' @param \code{line_size} Number of components in the configuration
+ //' @param \code{Step} Alpha and beta increment
+ //' @param \code{max_iterations} Default 1000
+ //' @param \code{replications} Default 1000
+ //' @param \code{initial_block_size} Inital block size. Default 1.
+ //' @param \code{Neighbors} Integer vectors of neighbors. Defaulf c(-1,0,1)
+ //' @return Data frame. If all zeros, return 0. If all ones, return 1. If MaxIterations reached, return -1.
+ //' @export
+// [[Rcpp::export]]
+Rcpp::DataFrame grid_simulation(int threads=1,
+                           double step = 0.01,
+                           int initial_block_lenght = 1, 
+                           int max_iterations = 100000, 
+                           int replications = 100,
+                           int line_size = 1000,
+                           IntegerVector Neighbors = IntegerVector::create(-1,0,1)){
+#ifdef _OPENMP
+  if ( threads > 0 )
+    omp_set_num_threads(threads);
+  //srand(int(time(NULL)) ^ omp_get_thread_num());
+  RNG rand;
+  REprintf("Number of threads=%i\n\n", omp_get_max_threads());
+#endif
+  int for_lenght = (int) 1/step;
+  //Rcout << "Lenght: " << for_lenght << std::endl;
+  int result_lenght = (int) replications*pow(for_lenght,2);
+  //Rcout << "Result_lenght: " << result_lenght << std::endl;
+  arma::mat result_matrix(result_lenght, 2);
+  arma::ivec result_status(result_lenght);
+  arma::ivec result_replication(result_lenght);
+  arma::ivec result_sum(result_lenght);
+  result_matrix.fill(0);
+  result_replication.fill(0);
+  result_status.fill(0);
+  result_sum.fill(0);
+#pragma omp parallel for default(shared) schedule(dynamic)
+  for(int r = 0; r < replications; r++){
+    for(int j = 0; j<for_lenght; j++){
+      for(int i = 0; i<for_lenght; i++){
+        arma::vec Automata =  {0,i*step,j*step,j*step,i*step,i*step,j*step,1};
+        arma::ivec X(line_size);
+        X.fill(0);
+        std::fill_n(X.begin(), initial_block_lenght, 1);
+        result_matrix(r*pow(for_lenght,2) + i*for_lenght+j, 0) = i*step;
+        result_matrix(r*pow(for_lenght,2) + i*for_lenght+j, 1) = j*step;
+        result_replication(r*pow(for_lenght,2) + i*for_lenght+j) = r;
+        int count = 0;
+        int val = -1;
+        int sumX = 0;
+        while ((val != 0)&&(val != 1)&&(count <= max_iterations)) {
+          arma::imat NeighborsMatrix = shiftCircular(X, Neighbors);
+          count++;
+          for(int k = 0; k < line_size; k++){
+            int Indice = NeighborsMatrix(k,0)*4 + NeighborsMatrix(k,1)*2 + NeighborsMatrix(k,2);
+            //double r = (double) rand()/RAND_MAX;
+            double r = rand();
+            X(k) = (r <= Automata(Indice)) ? 1 : 0;
+          }
+          sumX = sum(X);
+          if (sumX == 0) val = 0;
+          if (sumX == line_size) val = 1;
+        }
+        result_status(r*pow(for_lenght,2) + i*for_lenght+j) = val;
+        result_sum(r*pow(for_lenght,2) + i*for_lenght+j) = sumX;
+      }
+    }    
+  }
+  Rcpp::NumericMatrix tmp = Rcpp::wrap(result_matrix);
+  //return result_matrix;
+  return DataFrame::create(      _["Alpha"]  = tmp(_,0),
+                                 _["Beta"]  = tmp(_,1),
+                                 _["Replication"]  = result_replication,
+                                 _["Sum"]  = result_sum,
+                                 _["Status"]  = result_status);
+  
+}
+//Rcpp::checkUserInterrupt(); // Test if user wants stop proccess
+//test <- grid_simulation3(threads = 4, step = .1, initial_block_lenght = 1, max_iterations = 1000, Replications = 1, line_size = 100)
 
