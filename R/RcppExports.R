@@ -19,3 +19,23 @@ grid_simulation <- function(threads = 1L, step = 0.01, initial_block_lenght = 1L
     .Call('toom_grid_simulation', PACKAGE = 'toom', threads, step, initial_block_lenght, max_iterations, replications, line_size, Neighbors)
 }
 
+grid_simulation2 <- function(threads = 1L, step = 0.01, initial_block_lenght = 1L, max_iterations = 100000L, replications = 100L, line_size = 1000L, Neighbors = as.integer( c(-1,0,1))) {
+    .Call('toom_grid_simulation2', PACKAGE = 'toom', threads, step, initial_block_lenght, max_iterations, replications, line_size, Neighbors)
+}
+
+#' Do Automata Simulation (F with Alpha and Beta fixed for Ramos & Leite 2016)
+#' 
+#' Save the space and temporal mean of configurations.
+#' 
+#' @param \code{line_size} Number of components in the configuration
+#' @param \code{Step} Alpha and beta increment
+#' @param \code{max_iterations} Default 1000
+#' @param \code{replications} Default 1000
+#' @param \code{initial_block_size} Inital block size. Default 1.
+#' @param \code{Neighbors} Integer vectors of neighbors. Defaulf c(-1,0,1)
+#' @return Data frame. If all zeros, return 0. If all ones, return 1. If MaxIterations reached, return -1.
+#' @export
+grid_simulation3 <- function(threads = 1L, step = 0.01, initial_block_lenght = 1L, max_iterations = 100000L, line_size = 1000L, Neighbors = as.integer( c(-1,0,1))) {
+    .Call('toom_grid_simulation3', PACKAGE = 'toom', threads, step, initial_block_lenght, max_iterations, line_size, Neighbors)
+}
+

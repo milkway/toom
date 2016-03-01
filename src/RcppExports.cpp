@@ -35,3 +35,36 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// grid_simulation2
+Rcpp::DataFrame grid_simulation2(int threads, double step, int initial_block_lenght, int max_iterations, int replications, int line_size, IntegerVector Neighbors);
+RcppExport SEXP toom_grid_simulation2(SEXP threadsSEXP, SEXP stepSEXP, SEXP initial_block_lenghtSEXP, SEXP max_iterationsSEXP, SEXP replicationsSEXP, SEXP line_sizeSEXP, SEXP NeighborsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< int >::type threads(threadsSEXP);
+    Rcpp::traits::input_parameter< double >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< int >::type initial_block_lenght(initial_block_lenghtSEXP);
+    Rcpp::traits::input_parameter< int >::type max_iterations(max_iterationsSEXP);
+    Rcpp::traits::input_parameter< int >::type replications(replicationsSEXP);
+    Rcpp::traits::input_parameter< int >::type line_size(line_sizeSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type Neighbors(NeighborsSEXP);
+    __result = Rcpp::wrap(grid_simulation2(threads, step, initial_block_lenght, max_iterations, replications, line_size, Neighbors));
+    return __result;
+END_RCPP
+}
+// grid_simulation3
+Rcpp::DataFrame grid_simulation3(int threads, double step, int initial_block_lenght, int max_iterations, int line_size, IntegerVector Neighbors);
+RcppExport SEXP toom_grid_simulation3(SEXP threadsSEXP, SEXP stepSEXP, SEXP initial_block_lenghtSEXP, SEXP max_iterationsSEXP, SEXP line_sizeSEXP, SEXP NeighborsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< int >::type threads(threadsSEXP);
+    Rcpp::traits::input_parameter< double >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< int >::type initial_block_lenght(initial_block_lenghtSEXP);
+    Rcpp::traits::input_parameter< int >::type max_iterations(max_iterationsSEXP);
+    Rcpp::traits::input_parameter< int >::type line_size(line_sizeSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type Neighbors(NeighborsSEXP);
+    __result = Rcpp::wrap(grid_simulation3(threads, step, initial_block_lenght, max_iterations, line_size, Neighbors));
+    return __result;
+END_RCPP
+}
