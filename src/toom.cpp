@@ -725,7 +725,7 @@ arma::mat grid_simulation2(int threads=1,
 }
 */
 
-
+/*
  //' Do Automata Simulation (F with Alpha and Beta fixed for Ramos & Leite 2016)
  //' 
  //' Save the space and temporal mean of configurations.
@@ -830,9 +830,9 @@ Rcpp::DataFrame grid_simulation(int threads=1,
 }
 //Rcpp::checkUserInterrupt(); // Test if user wants stop proccess
 //test <- grid_simulation3(threads = 4, step = .1, initial_block_lenght = 1, max_iterations = 1000, Replications = 1, line_size = 100)
+*/
 
-
-
+/*
 // [[Rcpp::export]]
 Rcpp::DataFrame grid_simulation2(int threads=1,
                                 double step = 0.01,
@@ -901,7 +901,7 @@ Rcpp::DataFrame grid_simulation2(int threads=1,
                                  _["Status"]  = result_status);
   
 }
-
+*/
 
 //' Do Automata Simulation (F with Alpha and Beta fixed for Ramos & Leite 2016)
 //' 
@@ -916,7 +916,7 @@ Rcpp::DataFrame grid_simulation2(int threads=1,
 //' @return Data frame. If all zeros, return 0. If all ones, return 1. If MaxIterations reached, return -1.
 //' @export
 // [[Rcpp::export]]
-Rcpp::DataFrame grid_simulation3(int threads=1,
+Rcpp::DataFrame grid_simulation(int threads=1,
                                 double step = 0.01,
                                 int initial_block_lenght = 1, 
                                 int max_iterations = 100000, 
@@ -980,9 +980,9 @@ Rcpp::DataFrame grid_simulation3(int threads=1,
         }
         result_status(i*for_lenght+j) = val;
         result_sum(i*for_lenght+j) = sumX;
-        result_timesum(i*for_lenght+j) = time_sumX/(line_size*count);
+        result_timesum(i*for_lenght+j) = (time_sumX)/(line_size*count);
+        result_timesum01(i*for_lenght+j) = time_sumX01/(line_size*count);
         result_sum01(i*for_lenght+j) = sumX01;
-        result_timesum01(i*for_lenght+j) = 2*time_sumX01/(line_size*count);
         result_count(i*for_lenght+j) = count;
       }
     }    
@@ -994,6 +994,7 @@ Rcpp::DataFrame grid_simulation3(int threads=1,
                                  _["TimeSum"]  = result_timesum,
                                  _["Sum01"]  = result_sum01,
                                  _["TimeSum01"]  = result_timesum01,
+                                 _["Count"]  = result_count,
                                  _["Status"]  = result_status);
   
 }
